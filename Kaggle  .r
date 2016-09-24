@@ -74,3 +74,77 @@ my_tree_four <- rpart(Survived ~ Pclass + Sex + Age + SibSp + Parch + Fare + Emb
 
 # Visualize your new decision tree
 fancyRpartPlot(my_tree_four)
+-----------
+# train_new and test_new are available in the workspace Finish the command to create a decision tree my_tree_five: make sure to include the Title variable, and to create the tree based on train_new.
+#Visualize my_tree_five with fancyRpartPlot(). Notice that Title appears in one of the nodes.
+#Finish the predict() call to create my_prediction: the function should use my_tree_five and test_new to make predictions.
+#The code that creates a data frame my_solution and writes it to a CSV file is included: these steps make the solution ready for a submission on Kaggle.
+
+# Finish the command
+my_tree_five <- rpart(Survived ~ Pclass + Sex + Age + SibSp + Parch + Fare + Embarked + Title, 
+                      data = train_new, method = "class")
+
+# Visualize my_tree_five
+fancyRpartPlot(my_tree_five)
+
+# Make prediction
+my_prediction <- predict(my_tree_five, test_new, type = "class")
+
+# Make results ready for submission
+my_solution <- data.frame(PassengerId = test_new$PassengerId, Survived = my_prediction)
+write.csv(my_solution, file = "my_solution.csv", row.names = FALSE)
+------------------
+#The code to clean your entire dataset from missing data and split it up in training and test set is provided in the sample code. 
+#Study the code chunks closely so you understand what's going on. Just click Submit Answer to continue.
+# All data, both training and test set
+all_data
+
+# Passenger on row 62 and 830 do not have a value for embarkment.
+# Since many passengers embarked at Southampton, we give them the value S.
+all_data$Embarked[c(62, 830)] <- "S"
+
+# Factorize embarkment codes.
+all_data$Embarked <- factor(all_data$Embarked)
+
+# Passenger on row 1044 has an NA Fare value. Let's replace it with the median fare value.
+all_data$Fare[1044] <- median(all_data$Fare, na.rm = TRUE)
+
+# How to fill in missing Age values?
+# We make a prediction of a passengers Age using the other variables and a decision tree model.
+# This time you give method = "anova" since you are predicting a continuous variable.
+library(rpart)
+predicted_age <- rpart(Age ~ Pclass + Sex + SibSp + Parch + Fare + Embarked + Title + family_size,
+                       data = all_data[!is.na(all_data$Age),], method = "anova")
+all_data$Age[is.na(all_data$Age)] <- predict(predicted_age, all_data[is.na(all_data$Age),])
+
+# Split the data back into a train set and a test set
+train <- all_data[1:891,]
+test <- all_data[892:1309,]
+-----------------
+#Perform a Random Forest and name the model my_forest. Use the variables Passenger Class, Sex, Age, Number of Siblings/Spouses Aboard, Number of Parents/Children Aboard, Passenger Fare, Port of Embarkation, and Title (in this order).
+
+# train and test are available in the workspace
+str(train)
+str(test)
+
+# Load in the package
+library(randomForest)
+
+# Train set and test set
+str(train)
+str(test)
+
+# Set seed for reproducibility
+set.seed(111)
+
+# Apply the Random Forest Algorithm
+my_forest <- randomForest( as.factor(Survived) ~ Pclass + Sex + Age + SibSp + Parch + Fare + Embarked + Title, data=train, importance=TRUE, ntree=1000 )
+
+# Make your prediction using the test set
+my_prediction <- predict(my_forest,test)
+
+# Create a data frame with two columns: PassengerId & Survived. Survived contains your predictions
+my_solution <-data.frame(PassengerId = test$PassengerId, Survived = my_prediction)
+
+# Write your solution away to a csv file with the name my_solution.csv
+write.csv(my_solution , file = "my_solution.csv", row.names = FALSE)
