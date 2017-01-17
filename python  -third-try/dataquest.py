@@ -5,3 +5,5 @@ titanic = pandas.read_csv("titanic_train.csv")
 # Print the first 5 rows of the dataframe.
 print(titanic.head(5))
 print(titanic.describe())
+# Fill missing values of AGE
+titanic["Age"] = titanic["Age"].fillna(titanic["Age"].median())
