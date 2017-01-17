@@ -13,3 +13,14 @@ print(titanic["Sex"].unique())
 # Replace all the occurences of male with the number 0.
 titanic.loc[titanic["Sex"] == "male", "Sex"] = 0
 titanic.loc[titanic["Sex"] == "female", "Sex"] = 1
+
+# Find all the unique values for "Embarked".
+print(titanic["Embarked"].unique())
+# Fill missing values of Embarked
+titanic["Embarked"] = titanic["Embarked"].fillna("S")
+
+print(titanic.describe())
+# Replace all the "Embarked" classes  with the number 0,1,2.
+titanic.loc[titanic["Embarked"] == "S", "Embarked"] = 0
+titanic.loc[titanic["Embarked"] == "C", "Embarked"] = 1
+titanic.loc[titanic["Embarked"] == "Q", "Embarked"] = 2
