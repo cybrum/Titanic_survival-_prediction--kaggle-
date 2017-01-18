@@ -77,3 +77,28 @@ family_ids[titanic["FamilySize"] < 3] = -1
 print(pandas.value_counts(family_ids))
 
 titanic["FamilyId"] = family_ids
+import numpy as np
+from sklearn.feature_selection import SelectKBest, f_classif
+
+predictors = ["Pclass", "Sex", "Age", "SibSp", "Parch", "Fare", "Embarked", "FamilySize", "Title", "FamilyId", "NameLength"]
+
+# Perform feature selection
+selector = SelectKBest(f_classif, k=5)
+selector.fit(titanic[predictors], titanic["Survived"])
+
+# Get the raw p-values for each feature, and transform from p-values into scores
+scores = -np.log10(selector.pvalues_)
+
+# Plot the scores.  See how "Pclass", "Sex", "Title", and "Fare" are the best?
+plt.bar(range(len(predictors)), scores)
+plt.xticks(range(len(predictors)), predictors, rotation='vertical')
+plt.show()
+
+# Pick only the four best features.
+predictors = ["Pclass", "Sex", "Fare", "Title"]
+
+alg = RandomForestClassifier(random_state=1, n_estimators=50, min_samples_split=6, min_samples_leaf=4)
+
+kf = cross_validation.KFold(titanic.shape[0], n_folds=8, random_state=1)
+scores = cross_validation.cross_val_score(alg, titanic[predictors], titanic["Survived"], cv=kf)
+print (scores.mean())
