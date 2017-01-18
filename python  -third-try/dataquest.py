@@ -69,3 +69,19 @@ alg = LogisticRegression(random_state=1)
 scores = cross_validation.cross_val_score(alg, titanic[predictors], titanic["Survived"], cv=10)
 # Take the mean of the scores (because we have one for each fold)
 print(scores.mean())
+
+titanic_test = pandas.read_csv("titanic_test.csv")
+print(titanic.head(5))
+print(titanic.describe())
+titanic_test["Age"] = titanic_test["Age"].fillna(titanic["Age"].median())
+# Find all the unique genders -- the column appears to contain only male and female.
+print(titanic_test["Sex"].unique())
+
+# Replace all the occurences of male with the number 0.
+titanic_test.loc[titanic_test["Sex"] == "male", "Sex"] = 0
+titanic_test.loc[titanic_test["Sex"] == "female", "Sex"] = 1
+titanic_test["Embarked"] = titanic_test["Embarked"].fillna("S")
+titanic_test.loc[titanic_test["Embarked"] == "S", "Embarked"] = 0
+titanic_test.loc[titanic_test["Embarked"] == "C", "Embarked"] = 1
+titanic_test.loc[titanic_test["Embarked"] == "Q", "Embarked"] = 2
+titanic_test["Fare"] = titanic_test["Fare"].fillna(titanic["Fare"].median())
