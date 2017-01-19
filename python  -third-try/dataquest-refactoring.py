@@ -190,9 +190,7 @@ predictions[predictions <= .5] = 0
 predictions[predictions > .5] = 1
 
 predictions = predictions.astype(int)
-# Compute accuracy by comparing to the training data.
-accuracy = sum(predictions[predictions == titanic["Survived"]]) / len(predictions)
-print(accuracy)
+
 submission = pandas.DataFrame({
         "PassengerId": titanic_test["PassengerId"],
         "Survived": predictions
