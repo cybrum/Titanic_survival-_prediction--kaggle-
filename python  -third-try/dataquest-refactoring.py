@@ -141,3 +141,60 @@ predictions = np.concatenate(predictions, axis=0)
 # Compute accuracy by comparing to the training data.
 accuracy = sum(predictions[predictions == titanic["Survived"]]) / len(predictions)
 print(accuracy)
+# First, we'll add titles to the test set.
+titles = titanic_test["Name"].apply(get_title)
+# We're adding the Dona title to the mapping, because it's in the test set, but not the training set
+title_mapping = {"Mr": 1, "Miss": 2, "Mrs": 3, "Master": 4, "Dr": 5, "Rev": 6, "Major": 7, "Col": 7, "Mlle": 8, "Mme": 8, "Don": 9, "Lady": 10, "Countess": 10, "Jonkheer": 10, "Sir": 9, "Capt": 7, "Ms": 2, "Dona": 10}
+for k,v in title_mapping.items():
+    titles[titles == k] = v
+titanic_test["Title"] = titles
+# Check the counts of each unique title.
+print(pandas.value_counts(titanic_test["Title"]))
+
+# Now, we add the family size column.
+titanic_test["FamilySize"] = titanic_test["SibSp"] + titanic_test["Parch"]
+
+# Now we can add family ids.
+# We'll use the same ids that we did earlier.
+print(family_id_mapping)
+
+family_ids = titanic_test.apply(get_family_id, axis=1)
+family_ids[titanic_test["FamilySize"] < 3] = -1
+titanic_test["FamilyId"] = family_ids
+
+
+# The .apply method generates a new series
+titanic_test["NameLength"] = titanic_test["Name"].apply(lambda x: len(x))
+
+
+predictors = ["Pclass", "Sex", "Age", "Fare", "Embarked", "FamilySize", "Title", "FamilyId"]
+
+algorithms = [
+    [GradientBoostingClassifier(random_state=1, min_samples_leaf=2, min_samples_split=3, n_estimators=80, max_depth=4), predictors],
+    [LogisticRegression(random_state=1), ["Pclass", "Sex", "Fare", "FamilySize", "Title", "Age", "Embarked"]]
+]
+
+full_predictions = []
+for alg, predictors in algorithms:
+    # Fit the algorithm using the full training data.
+    alg.fit(titanic[predictors], titanic["Survived"])
+    # Predict using the test dataset.  We have to convert all the columns to floats to avoid an error.
+    predictions = alg.predict_proba(titanic_test[predictors].astype(float))[:,1]
+    full_predictions.append(predictions)
+
+# The gradient boosting classifier generates better predictions, so we weight it higher.
+predictions = (full_predictions[0] * 3 + full_predictions[1]) / 4
+
+
+predictions[predictions <= .5] = 0
+predictions[predictions > .5] = 1
+
+predictions = predictions.astype(int)
+# Compute accuracy by comparing to the training data.
+accuracy = sum(predictions[predictions == titanic["Survived"]]) / len(predictions)
+print(accuracy)
+submission = pandas.DataFrame({
+        "PassengerId": titanic_test["PassengerId"],
+        "Survived": predictions
+    })
+submission.to_csv("kaggle.csv", index=False)
