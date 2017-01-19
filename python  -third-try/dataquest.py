@@ -62,7 +62,7 @@ predictions[predictions > .5] = 1
 predictions[predictions <=.5] = 0
 accuracy = sum(predictions[predictions == titanic["Survived"]]) / len(predictions)
 from sklearn import cross_validation
-
+from sklearn.linear_model import LogisticRegression
 # Initialize our algorithm
 alg = LogisticRegression(random_state=1)
 # Compute the accuracy score for all the cross validation folds.  (much simpler than what we did before!)
