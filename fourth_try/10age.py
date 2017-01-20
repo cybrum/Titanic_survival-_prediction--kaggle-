@@ -144,7 +144,7 @@ for f in range(len(scores)):
     print("%0.2f %s" % (scores[indices[f]],features[indices[f]]))
 
 # BEST CLASSIFIER METHOD ==> RANDOM FOREST -----------------------------------------------------
-rfc = RandomForestClassifier(n_estimators=3000, min_samples_split=4,class_weight={0:0.745,1:0.255} )
+rfc = RandomForestClassifier(n_estimators=3000, min_samples_split=4,class_weight={0:0.700,1:0.300} )
 
 
 # CROSS VALIDATION WITH RANDOM FOREST CLASSIFIER METHOD-----------------------------------------
