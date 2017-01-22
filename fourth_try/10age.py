@@ -148,7 +148,7 @@ rfc = RandomForestClassifier(n_estimators=3000, min_samples_split=4,class_weight
 
 
 # CROSS VALIDATION WITH RANDOM FOREST CLASSIFIER METHOD-----------------------------------------
-kf = cross_validation.KFold(train.shape[0], n_folds=10, random_state=1)
+kf = cross_validation.KFold(train.shape[0], n_folds=5, random_state=1)
 
 scores = cross_validation.cross_val_score(rfc, train[features], target, cv=kf)
 print("Accuracy: %0.3f (+/- %0.2f) [%s]" % (scores.mean()*100, scores.std()*100, 'RFC Cross Validation'))
